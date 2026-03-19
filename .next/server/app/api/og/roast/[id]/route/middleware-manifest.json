@@ -1,0 +1,55 @@
+{
+  "sorted_middleware": [
+    "/api/og/roast/[id]/route"
+  ],
+  "middleware": {},
+  "instrumentation": null,
+  "functions": {
+    "/api/og/roast/[id]/route": {
+      "files": [
+        "server/middleware-build-manifest.js",
+        "server/interception-route-rewrite-manifest.js",
+        "required-server-files.js",
+        "server/server-reference-manifest.js",
+        "server/app/api/og/roast/[id]/route_client-reference-manifest.js",
+        "server/edge/chunks/_next-internal_server_app_api_og_roast_[id]_route_actions_022uvqy.js",
+        "server/edge/chunks/node_modules_next_dist_esm_0s70agi._.js",
+        "server/edge/chunks/[root-of-the-server]__04mlb6g._.js",
+        "server/edge/chunks/node_modules_next_dist_compiled_@vercel_og_11csqje._.js",
+        "server/edge/chunks/turbopack-node_modules_next_dist_esm_build_templates_edge-wrapper_0zh7jrr.js"
+      ],
+      "name": "app/api/og/roast/[id]/route",
+      "page": "/api/og/roast/[id]/route",
+      "entrypoint": "server/edge/chunks/turbopack-node_modules_next_dist_esm_build_templates_edge-wrapper_0zh7jrr.js",
+      "matchers": [
+        {
+          "regexp": "^/api/og/roast/(?P<nxtPid>[^/]+?)(?:/)?$",
+          "originalSource": "/api/og/roast/[id]"
+        }
+      ],
+      "wasm": [
+        {
+          "name": "wasm_10a187050363648b49a36c79d5266d2c",
+          "filePath": "server/edge/chunks/node_modules_next_dist_compiled_@vercel_og_yoga_0656eb_.wasm"
+        },
+        {
+          "name": "wasm_151b7f7b511bd6dda63695d2c75c87a3",
+          "filePath": "server/edge/chunks/node_modules_next_dist_compiled_@vercel_og_resvg_0656eb_.wasm"
+        }
+      ],
+      "assets": [
+        {
+          "name": "server/edge/assets/Geist-Regular.01xk7kbsv57y-.ttf",
+          "filePath": "server/edge/assets/Geist-Regular.01xk7kbsv57y-.ttf"
+        }
+      ],
+      "env": {
+        "__NEXT_BUILD_ID": "OgxIApNgzBTkrdk9uRkPD",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "Yip5fqeRiosPTCjTyWG65y4tRpIZJEiLSBPos8Lu1ug=",
+        "__NEXT_PREVIEW_MODE_ID": "064bc87c9305533f13a41713e34f8399",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "18d2d31a9a92b548bf2daec0887b8185f005f011d88c2c53822f87fb7554508c",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "efe16d28cdf4810ae4026270f7c8cffd62530d88b9565451be1e59328ab7dc76"
+      }
+    }
+  }
+}
