@@ -270,29 +270,63 @@ export default function Home() {
       ) : (
         <form
           onSubmit={handleSubmit}
-          className="relative z-[1] flex items-center gap-0 max-w-[600px] w-full mx-auto bg-surface border-2 border-border rounded-2xl p-1"
-          style={{ animation: "border-burn 3s ease-in-out infinite" }}
+          className="relative z-[1] max-w-[600px] w-full mx-auto px-4 sm:px-0"
         >
-          <span className="font-mono text-[16px] text-ember-orange pl-5 pr-0 py-4 select-none whitespace-nowrap">
-            $ scan
-          </span>
-          <input
-            type="text"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="paste your url here"
-            className="flex-1 px-3 py-4 bg-transparent border-none text-white font-mono text-[16px] outline-none placeholder:text-neutral-600"
-          />
-          <button
-            type="submit"
-            className="px-7 py-3.5 rounded-xl text-white font-display text-[15px] font-bold tracking-wide cursor-pointer whitespace-nowrap transition-all hover:scale-[1.02]"
-            style={{
-              background: "linear-gradient(135deg, #DC2626, #F97316)",
-              boxShadow: "0 0 30px rgba(249,115,22,0.3)",
-            }}
+          {/* Desktop: single bordered row */}
+          <div
+            className="hidden sm:flex items-center gap-0 bg-surface border-2 border-border rounded-2xl p-1"
+            style={{ animation: "border-burn 3s ease-in-out infinite" }}
           >
-            ROAST ME
-          </button>
+            <span className="font-mono text-[16px] text-ember-orange pl-5 pr-0 py-4 select-none whitespace-nowrap">
+              $ scan
+            </span>
+            <label htmlFor="url-input-desktop" className="sr-only">Website URL to scan</label>
+            <input
+              id="url-input-desktop"
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="paste your url here"
+              className="flex-1 min-w-0 px-3 py-4 bg-transparent border-none text-white font-mono text-[16px] outline-none placeholder:text-neutral-600"
+            />
+            <button
+              type="submit"
+              className="px-7 py-3.5 rounded-xl text-white font-display text-[15px] font-bold tracking-wide cursor-pointer whitespace-nowrap transition-all hover:scale-[1.02]"
+              style={{
+                background: "linear-gradient(135deg, #DC2626, #F97316)",
+                boxShadow: "0 0 30px rgba(249,115,22,0.3)",
+              }}
+            >
+              ROAST ME
+            </button>
+          </div>
+          {/* Mobile: stacked layout */}
+          <div className="flex flex-col gap-2 sm:hidden">
+            <div
+              className="flex items-center bg-surface border-2 border-border rounded-2xl p-1"
+              style={{ animation: "border-burn 3s ease-in-out infinite" }}
+            >
+              <label htmlFor="url-input-mobile" className="sr-only">Website URL to scan</label>
+              <input
+                id="url-input-mobile"
+                type="text"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="paste your url here"
+                className="flex-1 min-w-0 px-4 py-4 bg-transparent border-none text-white font-mono text-[16px] outline-none placeholder:text-neutral-600"
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-7 py-3.5 rounded-2xl text-white font-display text-[15px] font-bold tracking-wide cursor-pointer whitespace-nowrap transition-all hover:scale-[1.02]"
+              style={{
+                background: "linear-gradient(135deg, #DC2626, #F97316)",
+                boxShadow: "0 0 30px rgba(249,115,22,0.3)",
+              }}
+            >
+              ROAST ME
+            </button>
+          </div>
         </form>
       )}
 
