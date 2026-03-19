@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -37,23 +38,20 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
-        {/* Google Analytics */}
-        <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-WPMEJ88G9C"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-WPMEJ88G9C');
-            `,
-          }}
-        />
       </head>
-      <body className="bg-bg text-white font-body antialiased">{children}</body>
+      <body className="bg-bg text-white font-body antialiased">
+        {children}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-WPMEJ88G9C"
+          strategy="afterInteractive"
+        />
+        <Script id="ga4-init" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-WPMEJ88G9C');`}
+        </Script>
+      </body>
     </html>
   );
 }
