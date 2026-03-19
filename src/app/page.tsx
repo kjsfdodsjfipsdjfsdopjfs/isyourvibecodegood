@@ -79,8 +79,8 @@ export default function Home() {
     }, 3000);
 
     try {
-      // Start scan
-      const res = await fetch("https://api.preship.dev/api/scan/public", {
+      // Start scan via server-side proxy (uses admin API, no rate limit)
+      const res = await fetch("/api/scan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: scanUrl }),
