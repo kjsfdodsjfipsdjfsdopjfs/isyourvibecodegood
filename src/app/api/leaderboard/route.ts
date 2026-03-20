@@ -21,12 +21,12 @@ const VIBE_CODE_PATTERNS = [
   ".surge.sh", ".fly.dev", ".render.com", ".pages.dev",
   ".web.app", ".firebaseapp.com", ".amplifyapp.com",
   ".github.io", ".gitlab.io", ".onrender.com",
-  ".bolt.new", ".v0.dev",
+  ".bolt.new", ".v0.dev", ".base44.app", ".windsurf.build",
 ];
 
 // Famous sites that shouldn't appear in the leaderboard
 const BLOCKED_DOMAINS = [
-  "example.com", "t.co/",
+  "example.com", "t.co",
   "google.com", "facebook.com", "twitter.com", "x.com",
   "perplexity.ai", "claude.ai", "chatgpt.com", "openai.com",
   "figma.com", "vercel.com", "www.vercel.com", "netlify.com",
@@ -36,6 +36,11 @@ const BLOCKED_DOMAINS = [
   "youtube.com", "reddit.com", "linkedin.com", "instagram.com",
   "preship.dev", "lovable.app", "lovable.dev",
   "abeg.xyz", "bolt.new", "v0.dev",
+  "notion.so", "tldraw.com", "linear.app", "vercel.app",
+  "netlify.com", "railway.app", "supabase.com", "planetscale.com",
+  "neon.tech", "clerk.com", "resend.com", "cal.com",
+  "midjourney.com", "anthropic.com", "huggingface.co",
+  "showmeonmap.com",
 ];
 
 function isVibeCodedApp(url: string): boolean {
@@ -43,7 +48,7 @@ function isVibeCodedApp(url: string): boolean {
   // Check if it matches a vibe-code hosting pattern
   if (VIBE_CODE_PATTERNS.some((p) => clean.includes(p))) return true;
   // Block known big/famous sites
-  if (BLOCKED_DOMAINS.some((d) => clean === d || clean === "www." + d || clean.startsWith(d + "/"))) return false;
+  if (BLOCKED_DOMAINS.some((d) => clean === d || clean === "www." + d || clean.startsWith(d + "/") || clean.startsWith("www." + d + "/"))) return false;
   // Allow everything else (custom domains that might be vibe-coded)
   return true;
 }
