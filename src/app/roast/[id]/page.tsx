@@ -238,12 +238,14 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
 
       {/* Category roasts */}
       {showRoast && (
-        <div className="max-w-[560px] w-full mx-auto space-y-4 mb-10 relative z-[1]">
+        <div className="max-w-[560px] w-full mx-auto space-y-4 mb-10 relative z-[1]" role="list" aria-label="Score breakdown by category">
           {categories.map((cat, i) => {
             const catColor = getScoreColor(cat.score);
             return (
               <div
                 key={cat.name}
+                role="listitem"
+                aria-label={`${cat.name}: ${cat.score} out of 100`}
                 className="bg-bg border border-border rounded-xl p-5 text-left"
                 style={{
                   animation: `slide-up 0.5s ease-out ${0.2 + i * 0.2}s both`,

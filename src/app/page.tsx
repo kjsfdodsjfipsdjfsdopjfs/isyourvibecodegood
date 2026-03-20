@@ -293,6 +293,9 @@ export default function Home() {
           <p className="font-mono text-[14px] text-roast animate-pulse">
             {loadingMsg}
           </p>
+          <p className="font-mono text-[11px] text-neutral-600 mt-3">
+            This usually takes 30–60 seconds
+          </p>
         </div>
       ) : (
         <form
@@ -385,7 +388,7 @@ export default function Home() {
                 >
                   {item.score}
                 </span>
-                <span className="text-neutral-600 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
+                <span className="text-neutral-600 max-w-[180px] sm:max-w-[250px] overflow-hidden text-ellipsis whitespace-nowrap">
                   {item.url}
                 </span>
                 <span
@@ -467,7 +470,7 @@ export default function Home() {
                   </span>
 
                   {/* Info */}
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 overflow-hidden">
                     <p className="font-mono text-[13px] text-neutral-300 truncate">
                       {item.url}
                     </p>
