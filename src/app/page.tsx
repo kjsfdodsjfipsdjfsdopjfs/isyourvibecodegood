@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const EMBER_PARTICLES = [
@@ -24,7 +24,26 @@ const EMBER_PARTICLES = [
   { x: "62%", size: "2px", dur: "2.1s", delay: "2s", drift: "-12px", color: "#FBBF24" },
 ];
 
-const KILL_FEED = [
+interface KillFeedItem {
+  score: number;
+  url: string;
+  verdict: string;
+  color: string;
+  scanId?: string;
+}
+
+interface TopScoreItem {
+  rank: number;
+  score: number;
+  url: string;
+  verdict: string;
+  color: string;
+  scanId?: string;
+  pageTitle?: string | null;
+  pageDescription?: string | null;
+}
+
+const FALLBACK_KILL_FEED: KillFeedItem[] = [
   { score: 23, url: "todo-app.lovable.app", verdict: "BRUTAL", color: "#EF4444" },
   { score: 61, url: "crypto-dash.vercel.app", verdict: "MEH", color: "#FBBF24" },
   { score: 14, url: "ai-chat-clone.netlify.app", verdict: "BRUTAL", color: "#EF4444" },
@@ -57,7 +76,19 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState(LOADING_MESSAGES[0]);
   const [error, setError] = useState("");
+  const [killFeed, setKillFeed] = useState<KillFeedItem[]>(FALLBACK_KILL_FEED);
+  const [topScores, setTopScores] = useState<TopScoreItem[]>([]);
   const router = useRouter();
+
+  useEffect(() => {
+    fetch("/api/leaderboard")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.recentScans?.length > 0) setKillFeed(data.recentScans);
+        if (data.topScores?.length > 0) setTopScores(data.topScores);
+      })
+      .catch(() => {});
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -341,10 +372,11 @@ export default function Home() {
             Recently Roasted
           </p>
           <div className="flex flex-col gap-1.5 items-center">
-            {KILL_FEED.map((item, i) => (
-              <div
+            {killFeed.map((item, i) => (
+              <a
                 key={i}
-                className="font-mono text-[13px] text-neutral-400 inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-white/[0.02] border border-white/[0.04] rounded-lg"
+                href={item.scanId ? `/roast/${item.scanId}` : undefined}
+                className="font-mono text-[13px] text-neutral-400 inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-white/[0.02] border border-white/[0.04] rounded-lg hover:bg-white/[0.04] transition-colors"
                 style={{
                   animation: `slide-up 0.5s ease-out ${i * 0.1}s both`,
                 }}
@@ -367,8 +399,101 @@ export default function Home() {
                 >
                   {item.verdict}
                 </span>
-              </div>
+              </a>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Top 10 Leaderboard */}
+      {!loading && topScores.length > 0 && (
+        <div className="relative z-[1] mt-14 w-full max-w-[600px] mx-auto px-4 sm:px-0">
+          <div className="text-center mb-6">
+            <p className="font-display text-[24px] sm:text-[28px] font-bold">
+              <span style={{ color: "#FBBF24" }}>&#9733;</span>{" "}
+              <span
+                style={{
+                  background: "linear-gradient(135deg, #FBBF24, #F97316)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                Top Vibe Codes
+              </span>{" "}
+              <span style={{ color: "#FBBF24" }}>&#9733;</span>
+            </p>
+            <p className="font-mono text-[12px] text-neutral-600 mt-1">
+              Highest scores this week &mdash; score high and get featured here
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            {topScores.map((item, i) => {
+              const medals = ["#FFD700", "#C0C0C0", "#CD7F32"];
+              const medalEmoji = i < 3 ? ["1st", "2nd", "3rd"][i] : null;
+              const isTop3 = i < 3;
+
+              return (
+                <a
+                  key={i}
+                  href={item.scanId ? `/roast/${item.scanId}` : undefined}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all hover:scale-[1.01] ${
+                    isTop3
+                      ? "bg-white/[0.04] border-white/[0.08]"
+                      : "bg-white/[0.02] border-white/[0.04]"
+                  }`}
+                  style={{
+                    animation: `slide-up 0.5s ease-out ${0.1 + i * 0.08}s both`,
+                    ...(isTop3
+                      ? {
+                          boxShadow: `0 0 20px ${medals[i]}10`,
+                          borderColor: `${medals[i]}30`,
+                        }
+                      : {}),
+                  }}
+                >
+                  {/* Rank */}
+                  <span
+                    className="font-display text-[18px] font-bold min-w-[32px] text-center"
+                    style={{ color: isTop3 ? medals[i] : "#666" }}
+                  >
+                    {medalEmoji || `#${item.rank}`}
+                  </span>
+
+                  {/* Score */}
+                  <span
+                    className="font-display text-[22px] font-bold tabular-nums min-w-[45px] text-right"
+                    style={{ color: item.color }}
+                  >
+                    {item.score}
+                  </span>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-mono text-[13px] text-neutral-300 truncate">
+                      {item.url}
+                    </p>
+                    {item.pageTitle && (
+                      <p className="font-mono text-[11px] text-neutral-600 truncate mt-0.5">
+                        {item.pageTitle}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Badge */}
+                  <span
+                    className="text-[11px] px-2.5 py-1 rounded-lg font-semibold uppercase tracking-[0.5px] shrink-0"
+                    style={{
+                      color: item.color,
+                      background: `${item.color}15`,
+                      border: `1px solid ${item.color}30`,
+                    }}
+                  >
+                    {item.verdict}
+                  </span>
+                </a>
+              );
+            })}
           </div>
         </div>
       )}
