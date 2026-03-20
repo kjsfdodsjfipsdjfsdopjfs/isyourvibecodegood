@@ -42,9 +42,16 @@ export async function GET() {
       (s: ScanEntry) => s.status === "completed" && s.score != null
     );
 
-    // Recent scans: last 5 completed (skip example.com test scans)
+    // Recent scans: last 5 completed (skip example.com, deduplicate by URL)
+    const recentSeen = new Set<string>();
     const recentScans = scans
-      .filter((s) => !s.url.includes("example.com"))
+      .filter((s) => {
+        if (s.url.includes("example.com")) return false;
+        const clean = s.url?.replace(/^https?:\/\//, "").replace(/\/$/, "") || "";
+        if (recentSeen.has(clean)) return false;
+        recentSeen.add(clean);
+        return true;
+      })
       .slice(0, 5)
       .map((s) => ({
         scanId: s.id,
