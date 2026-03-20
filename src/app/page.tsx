@@ -99,9 +99,7 @@ export default function Home() {
       const maxAttempts = 60; // 2 minutes
       while (attempts < maxAttempts) {
         await new Promise((r) => setTimeout(r, 3000));
-        const pollRes = await fetch(
-          `https://api.preship.dev/api/scan/public/${scanId}`
-        );
+        const pollRes = await fetch(`/api/scan/${scanId}`);
         const pollData = await pollRes.json();
 
         if (pollData.data?.status === "completed") {

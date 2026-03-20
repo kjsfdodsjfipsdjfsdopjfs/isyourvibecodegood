@@ -72,9 +72,7 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
   useEffect(() => {
     async function fetchScan() {
       try {
-        const res = await fetch(
-          `https://api.preship.dev/api/scan/public/${id}`
-        );
+        const res = await fetch(`/api/scan/${id}`);
         const data = await res.json();
 
         if (data.data?.status === "completed") {
