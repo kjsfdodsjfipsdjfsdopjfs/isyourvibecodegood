@@ -14,6 +14,40 @@ interface ScanEntry {
   error: string | null;
 }
 
+// Only show vibe-coded apps in the leaderboard — filter out big/famous sites
+const VIBE_CODE_PATTERNS = [
+  ".lovable.app", ".vercel.app", ".netlify.app", ".railway.app",
+  ".replit.app", ".replit.dev", ".stackblitz.io", ".glitch.me",
+  ".surge.sh", ".fly.dev", ".render.com", ".pages.dev",
+  ".web.app", ".firebaseapp.com", ".amplifyapp.com",
+  ".github.io", ".gitlab.io", ".onrender.com",
+  ".bolt.new", ".v0.dev",
+];
+
+// Famous sites that shouldn't appear in the leaderboard
+const BLOCKED_DOMAINS = [
+  "example.com", "t.co/",
+  "google.com", "facebook.com", "twitter.com", "x.com",
+  "perplexity.ai", "claude.ai", "chatgpt.com", "openai.com",
+  "figma.com", "vercel.com", "www.vercel.com", "netlify.com",
+  "github.com", "gitlab.com", "stackoverflow.com",
+  "segment.com", "deel.com", "unkey.dev", "phind.com",
+  "stripe.com", "amazon.com", "apple.com", "microsoft.com",
+  "youtube.com", "reddit.com", "linkedin.com", "instagram.com",
+  "preship.dev", "lovable.app", "lovable.dev",
+  "abeg.xyz", "bolt.new", "v0.dev",
+];
+
+function isVibeCodedApp(url: string): boolean {
+  const clean = url.replace(/^https?:\/\//, "").replace(/\/$/, "").toLowerCase();
+  // Check if it matches a vibe-code hosting pattern
+  if (VIBE_CODE_PATTERNS.some((p) => clean.includes(p))) return true;
+  // Block known big/famous sites
+  if (BLOCKED_DOMAINS.some((d) => clean === d || clean === "www." + d || clean.startsWith(d + "/"))) return false;
+  // Allow everything else (custom domains that might be vibe-coded)
+  return true;
+}
+
 function getVerdict(score: number): { verdict: string; color: string } {
   if (score >= 80) return { verdict: "CLEAN", color: "#22C55E" };
   if (score >= 50) return { verdict: "MEH", color: "#FBBF24" };
@@ -46,7 +80,7 @@ export async function GET() {
     const recentSeen = new Set<string>();
     const recentScans = scans
       .filter((s) => {
-        if (s.url.includes("example.com") || s.url.includes("t.co/")) return false;
+        if (!isVibeCodedApp(s.url)) return false;
         const clean = s.url?.replace(/^https?:\/\//, "").replace(/\/$/, "") || "";
         if (recentSeen.has(clean)) return false;
         recentSeen.add(clean);
@@ -72,7 +106,7 @@ export async function GET() {
     // Deduplicate by URL (keep best score), skip example.com
     const urlMap = new Map<string, ScanEntry>();
     for (const s of weeklyScans) {
-      if (s.url.includes("example.com") || s.url.includes("t.co/")) continue;
+      if (!isVibeCodedApp(s.url)) continue;
       const cleanUrl = s.url?.replace(/^https?:\/\//, "").replace(/\/$/, "") || "";
       const existing = urlMap.get(cleanUrl);
       if (!existing || s.score > existing.score) {
