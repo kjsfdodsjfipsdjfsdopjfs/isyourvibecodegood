@@ -22,6 +22,7 @@ const VIBE_CODE_PATTERNS = [
   ".web.app", ".firebaseapp.com", ".amplifyapp.com",
   ".github.io", ".gitlab.io", ".onrender.com",
   ".bolt.new", ".v0.dev", ".base44.app", ".windsurf.build",
+  ".neocities.org", ".deno.dev", ".val.run", ".workers.dev",
 ];
 
 // Famous sites that shouldn't appear in the leaderboard
@@ -40,7 +41,13 @@ const BLOCKED_DOMAINS = [
   "netlify.com", "railway.app", "supabase.com", "planetscale.com",
   "neon.tech", "clerk.com", "resend.com", "cal.com",
   "midjourney.com", "anthropic.com", "huggingface.co",
-  "showmeonmap.com",
+  "showmeonmap.com", "render.com", "postman.com", "heroku.com",
+  "digitalocean.com", "aws.amazon.com", "azure.microsoft.com",
+  "cloudflare.com", "twitch.tv", "discord.com", "slack.com",
+  "zoom.us", "dropbox.com", "spotify.com", "netflix.com",
+  "producthunt.com", "indiehackers.com", "hackernews.com",
+  "wordpress.com", "medium.com", "substack.com",
+  "framer.com", "webflow.com", "squarespace.com", "wix.com",
 ];
 
 function isVibeCodedApp(url: string): boolean {
