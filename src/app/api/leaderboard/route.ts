@@ -46,7 +46,7 @@ export async function GET() {
     const recentSeen = new Set<string>();
     const recentScans = scans
       .filter((s) => {
-        if (s.url.includes("example.com")) return false;
+        if (s.url.includes("example.com") || s.url.includes("t.co/")) return false;
         const clean = s.url?.replace(/^https?:\/\//, "").replace(/\/$/, "") || "";
         if (recentSeen.has(clean)) return false;
         recentSeen.add(clean);
@@ -72,7 +72,7 @@ export async function GET() {
     // Deduplicate by URL (keep best score), skip example.com
     const urlMap = new Map<string, ScanEntry>();
     for (const s of weeklyScans) {
-      if (s.url.includes("example.com")) continue;
+      if (s.url.includes("example.com") || s.url.includes("t.co/")) continue;
       const cleanUrl = s.url?.replace(/^https?:\/\//, "").replace(/\/$/, "") || "";
       const existing = urlMap.get(cleanUrl);
       if (!existing || s.score > existing.score) {
