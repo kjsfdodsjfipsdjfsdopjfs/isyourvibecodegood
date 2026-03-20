@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
 
-const ADMIN_TOKEN = process.env.PRESHIP_ADMIN_TOKEN || "";
+const ADMIN_TOKEN = "preadmin_2832ce130a78225fa763647b4d7fd834";
 const API_BASE = "https://api.preship.dev";
 
 interface ScanEntry {
-  scanId: string;
+  id: string;
   url: string;
-  overallScore: number;
+  score: number;
   status: string;
-  createdAt?: string;
-  pageTitle?: string;
-  pageDescription?: string;
+  source: string;
+  createdAt: string;
+  completedAt: string | null;
+  error: string | null;
 }
 
 function getVerdict(score: number): { verdict: string; color: string } {
@@ -21,68 +22,66 @@ function getVerdict(score: number): { verdict: string; color: string } {
 
 export async function GET() {
   try {
-    // Try to fetch recent scans from PreShip admin API
     const res = await fetch(
-      `${API_BASE}/api/admin/scans?source=isyourvibecodegood&limit=20&sort=-createdAt`,
+      `${API_BASE}/api/admin/scans/recent?limit=100`,
       {
         headers: {
           "Content-Type": "application/json",
           "X-Admin-Token": ADMIN_TOKEN,
         },
-        next: { revalidate: 60 }, // Cache for 60 seconds
+        next: { revalidate: 60 },
       }
     );
 
     if (!res.ok) {
-      // API might not support listing — return empty
       return NextResponse.json({ recentScans: [], topScores: [] });
     }
 
     const data = await res.json();
-    const scans: ScanEntry[] = (data.data || data.scans || data || []).filter(
-      (s: ScanEntry) => s.status === "completed" && s.overallScore != null
+    const scans: ScanEntry[] = (data.data || []).filter(
+      (s: ScanEntry) => s.status === "completed" && s.score != null
     );
 
-    // Recent scans: last 5 completed
-    const recentScans = scans.slice(0, 5).map((s) => ({
-      scanId: s.scanId,
-      score: s.overallScore,
-      url: s.url?.replace(/^https?:\/\//, "").replace(/\/$/, "") || "",
-      pageTitle: s.pageTitle || null,
-      pageDescription: s.pageDescription || null,
-      ...getVerdict(s.overallScore),
-    }));
+    // Recent scans: last 5 completed (skip example.com test scans)
+    const recentScans = scans
+      .filter((s) => !s.url.includes("example.com"))
+      .slice(0, 5)
+      .map((s) => ({
+        scanId: s.id,
+        score: s.score,
+        url: s.url?.replace(/^https?:\/\//, "").replace(/\/$/, "") || "",
+        ...getVerdict(s.score),
+      }));
 
     // Top scores this week: filter by date, sort by score desc
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
     const weeklyScans = scans.filter((s) => {
-      if (!s.createdAt) return true; // Include if no date (assume recent)
+      if (!s.createdAt) return true;
       return new Date(s.createdAt) >= oneWeekAgo;
     });
 
-    // Sort by score descending, deduplicate by URL (keep best score)
+    // Deduplicate by URL (keep best score), skip example.com
     const urlMap = new Map<string, ScanEntry>();
     for (const s of weeklyScans) {
+      if (s.url.includes("example.com")) continue;
       const cleanUrl = s.url?.replace(/^https?:\/\//, "").replace(/\/$/, "") || "";
       const existing = urlMap.get(cleanUrl);
-      if (!existing || s.overallScore > existing.overallScore) {
+      if (!existing || s.score > existing.score) {
         urlMap.set(cleanUrl, s);
       }
     }
 
     const topScores = Array.from(urlMap.values())
-      .sort((a, b) => b.overallScore - a.overallScore)
+      .sort((a, b) => b.score - a.score)
       .slice(0, 10)
       .map((s, i) => ({
         rank: i + 1,
-        scanId: s.scanId,
-        score: s.overallScore,
+        scanId: s.id,
+        score: s.score,
         url: s.url?.replace(/^https?:\/\//, "").replace(/\/$/, "") || "",
-        pageTitle: s.pageTitle || null,
-        pageDescription: s.pageDescription || null,
-        ...getVerdict(s.overallScore),
+        ...getVerdict(s.score),
       }));
 
     return NextResponse.json({ recentScans, topScores });

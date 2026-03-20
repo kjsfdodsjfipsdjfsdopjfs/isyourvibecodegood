@@ -39,8 +39,6 @@ interface TopScoreItem {
   verdict: string;
   color: string;
   scanId?: string;
-  pageTitle?: string | null;
-  pageDescription?: string | null;
 }
 
 const FALLBACK_KILL_FEED: KillFeedItem[] = [
@@ -473,11 +471,6 @@ export default function Home() {
                     <p className="font-mono text-[13px] text-neutral-300 truncate">
                       {item.url}
                     </p>
-                    {item.pageTitle && (
-                      <p className="font-mono text-[11px] text-neutral-600 truncate mt-0.5">
-                        {item.pageTitle}
-                      </p>
-                    )}
                   </div>
 
                   {/* Badge */}
