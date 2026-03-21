@@ -1,14 +1,32 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
-import { generateRoast, getScoreColor, getLetterGrade } from "@/lib/roast";
+import {
+  generateRoast,
+  getScoreColor,
+  getLetterGrade,
+  getShipReadinessColor,
+  getCategoryRoast,
+  getPillarRoast,
+  CATEGORY_META,
+  PILLAR_META,
+  type PillarData,
+} from "@/lib/roast";
+
+interface CategoryData {
+  category: string;
+  score: number;
+  violations: number;
+}
 
 interface ScanData {
   scanId: string;
   status: string;
   url: string;
   overallScore: number;
-  categories: { category: string; score: number; violations: number }[];
+  categories: CategoryData[];
+  shipReadiness?: string;
+  pillars?: PillarData[];
 }
 
 function Typewriter({ text, delay = 25 }: { text: string; delay?: number }) {
@@ -60,6 +78,111 @@ function CountUp({ target, duration = 1500 }: { target: number; duration?: numbe
   }, [target, duration]);
 
   return <>{value}</>;
+}
+
+function ShipReadinessBadge({ verdict }: { verdict: string }) {
+  const color = getShipReadinessColor(verdict);
+  return (
+    <div
+      className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-display text-[18px] sm:text-[22px] font-bold uppercase tracking-wide"
+      style={{
+        color,
+        background: `${color}15`,
+        border: `2px solid ${color}40`,
+        boxShadow: `0 0 30px ${color}20`,
+        animation: "slide-up 0.5s ease-out",
+      }}
+    >
+      <span style={{ fontSize: "1.2em" }}>
+        {verdict === "SHIP IT" && "🚀"}
+        {verdict === "ALMOST READY" && "⚠️"}
+        {verdict === "NEEDS WORK" && "🔧"}
+        {verdict === "DO NOT SHIP" && "🚫"}
+      </span>
+      {verdict}
+    </div>
+  );
+}
+
+function PillarCard({
+  pillar,
+  animDelay,
+}: {
+  pillar: PillarData;
+  animDelay: number;
+}) {
+  const meta = PILLAR_META[pillar.pillar];
+  const pillarColor = getScoreColor(pillar.score);
+  const roastText = getPillarRoast(pillar.pillar, pillar.score);
+
+  return (
+    <div
+      className="bg-surface border border-border rounded-2xl p-5 sm:p-6"
+      style={{ animation: `slide-up 0.5s ease-out ${animDelay}s both` }}
+    >
+      {/* Pillar header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-[20px]">{meta?.emoji}</span>
+          <span
+            className="font-display text-[16px] sm:text-[18px] font-bold uppercase tracking-[1px]"
+            style={{ color: pillarColor }}
+          >
+            {meta?.label || pillar.pillar}
+          </span>
+          <span className="font-mono text-[11px] text-neutral-600">
+            ({meta?.weight})
+          </span>
+        </div>
+        <span
+          className="font-display text-[28px] sm:text-[32px] font-bold tabular-nums"
+          style={{ color: pillarColor }}
+        >
+          {pillar.score}
+        </span>
+      </div>
+
+      {/* Category sub-bars */}
+      <div className="space-y-2.5 mb-4">
+        {pillar.categories.map((cat) => {
+          const catColor = getScoreColor(cat.score);
+          const catMeta = CATEGORY_META[cat.category];
+          return (
+            <div key={cat.category}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-mono text-[12px] text-neutral-400 flex items-center gap-1.5">
+                  <span className="text-[11px]">{catMeta?.icon}</span>
+                  {catMeta?.label || cat.category}
+                </span>
+                <span
+                  className="font-mono text-[12px] font-bold tabular-nums"
+                  style={{ color: catColor }}
+                >
+                  {cat.score}
+                </span>
+              </div>
+              <div className="h-1 bg-border rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{
+                    width: `${cat.score}%`,
+                    background: catColor,
+                  }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Pillar roast */}
+      {roastText && (
+        <p className="font-mono text-[12px] sm:text-[13px] text-roast leading-relaxed border-t border-border pt-3">
+          &ldquo;{roastText}&rdquo;
+        </p>
+      )}
+    </div>
+  );
 }
 
 export default function RoastPage({ params }: { params: Promise<{ id: string }> }) {
@@ -136,43 +259,52 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
     );
   }
 
+  const hasPillars = scan.pillars && scan.pillars.length > 0;
+
   const secScore =
     scan.categories.find((c) => c.category === "security")?.score ?? 0;
   const a11yScore =
-    scan.categories.find(
-      (c) => c.category === "accessibility"
-    )?.score ?? 0;
+    scan.categories.find((c) => c.category === "accessibility")?.score ?? 0;
   const perfScore =
-    scan.categories.find(
-      (c) => c.category === "performance"
-    )?.score ?? 0;
+    scan.categories.find((c) => c.category === "performance")?.score ?? 0;
 
-  const roast = generateRoast(scan.overallScore, secScore, a11yScore, perfScore);
+  const roast = generateRoast(
+    scan.overallScore,
+    secScore,
+    a11yScore,
+    perfScore,
+    scan.categories,
+    scan.pillars
+  );
   const scoreColor = getScoreColor(scan.overallScore);
   const grade = getLetterGrade(scan.overallScore);
 
   const shareText = encodeURIComponent(
-    `My vibe-coded app got ROASTED\n\nScore: ${scan.overallScore}/100 — Grade: ${grade}\n\n"${roast.overall.slice(0, 100)}"\n\nGet roasted: isyourvibecodegood.com`
+    `My vibe-coded app got ROASTED\n\nScore: ${scan.overallScore}/100 — Grade: ${grade}${scan.shipReadiness ? ` — ${scan.shipReadiness}` : ""}\n\n"${roast.overall.slice(0, 100)}"\n\nGet roasted: isyourvibecodegood.com`
   );
   const shareUrl = encodeURIComponent(
     `https://isyourvibecodegood.com/roast/${id}`
   );
 
-  const categories = [
+  // Fallback: old-style category cards when no pillars
+  const legacyCategories = [
     {
       name: "SECURITY",
+      key: "security",
       score: secScore,
       roast: roast.security,
       violations: scan.categories.find((c) => c.category === "security")?.violations ?? 0,
     },
     {
       name: "ACCESSIBILITY",
+      key: "accessibility",
       score: a11yScore,
       roast: roast.accessibility,
       violations: scan.categories.find((c) => c.category === "accessibility")?.violations ?? 0,
     },
     {
       name: "PERFORMANCE",
+      key: "performance",
       score: perfScore,
       roast: roast.performance,
       violations: scan.categories.find((c) => c.category === "performance")?.violations ?? 0,
@@ -194,6 +326,13 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
       <p className="font-mono text-[14px] text-neutral-600 mb-6 relative z-[1]">
         {scan.url.replace(/^https?:\/\//, "")}
       </p>
+
+      {/* Ship Readiness Verdict */}
+      {scan.shipReadiness && showRoast && (
+        <div className="relative z-[1] mb-6">
+          <ShipReadinessBadge verdict={scan.shipReadiness} />
+        </div>
+      )}
 
       {/* Score */}
       <div className="relative z-[1] text-center mb-2">
@@ -236,10 +375,29 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
         </div>
       )}
 
-      {/* Category roasts */}
-      {showRoast && (
+      {/* === NEW: 3-Pillar Display (when pillars available) === */}
+      {showRoast && hasPillars && (
+        <div
+          className="max-w-[720px] w-full mx-auto mb-10 relative z-[1]"
+          role="list"
+          aria-label="Score breakdown by pillar"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {scan.pillars!.map((pillar, i) => (
+              <PillarCard
+                key={pillar.pillar}
+                pillar={pillar}
+                animDelay={0.2 + i * 0.2}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* === LEGACY: Category cards (when no pillars) === */}
+      {showRoast && !hasPillars && (
         <div className="max-w-[560px] w-full mx-auto space-y-4 mb-10 relative z-[1]" role="list" aria-label="Score breakdown by category">
-          {categories.map((cat, i) => {
+          {legacyCategories.map((cat, i) => {
             const catColor = getScoreColor(cat.score);
             return (
               <div
