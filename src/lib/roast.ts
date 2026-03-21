@@ -556,10 +556,20 @@ export const PILLAR_META: Record<string, { label: string; emoji: string; weight:
   business: { label: "Business Reality", emoji: "💰", weight: "25%" },
 };
 
+export interface CheckResult {
+  id: string;
+  category: string;
+  name: string;
+  passed: boolean;
+  points: number;
+  maxPoints: number;
+  howToFix?: string;
+}
+
 export interface PillarData {
   pillar: string;
   score: number;
-  categories: { category: string; score: number; violations?: number }[];
+  categories: { category: string; score: number; violations?: number; checks?: CheckResult[] }[];
 }
 
 export interface RoastResult {

@@ -11,12 +11,14 @@ import {
   CATEGORY_META,
   PILLAR_META,
   type PillarData,
+  type CheckResult,
 } from "@/lib/roast";
 
 interface CategoryData {
   category: string;
   score: number;
   violations: number;
+  checks?: CheckResult[];
 }
 
 interface ScanData {
@@ -104,6 +106,44 @@ function ShipReadinessBadge({ verdict }: { verdict: string }) {
   );
 }
 
+function CheckItem({ check }: { check: CheckResult }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className="group">
+      <button
+        className="w-full flex items-center gap-2 py-1 text-left"
+        onClick={() => check.howToFix && setExpanded(!expanded)}
+        aria-expanded={check.howToFix ? expanded : undefined}
+      >
+        <span className="text-[11px] shrink-0">
+          {check.passed ? "✅" : "❌"}
+        </span>
+        <span className="font-mono text-[10px] text-neutral-400 flex-1 truncate">
+          {check.name}
+        </span>
+        <span
+          className="font-mono text-[10px] font-bold tabular-nums shrink-0"
+          style={{ color: check.passed ? "#22C55E" : "#EF4444" }}
+        >
+          {check.points}/{check.maxPoints}
+        </span>
+        {check.howToFix && (
+          <span className="text-[10px] text-neutral-600 shrink-0 transition-transform" style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}>
+            ▼
+          </span>
+        )}
+      </button>
+      {expanded && check.howToFix && (
+        <div className="ml-6 mb-2 px-3 py-2 bg-[#0A0A0A] border border-border rounded-lg">
+          <p className="font-mono text-[10px] text-ember-orange/80 leading-relaxed">
+            {check.howToFix}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PillarCard({
   pillar,
   animDelay,
@@ -111,6 +151,7 @@ function PillarCard({
   pillar: PillarData;
   animDelay: number;
 }) {
+  const [expandedCat, setExpandedCat] = useState<string | null>(null);
   const meta = PILLAR_META[pillar.pillar];
   const pillarColor = getScoreColor(pillar.score);
   const roastText = getPillarRoast(pillar.pillar, pillar.score);
@@ -122,14 +163,14 @@ function PillarCard({
     >
       {/* Pillar header — colored top bar */}
       <div
-        className="px-5 py-4 flex items-center justify-between"
+        className="px-5 py-4 flex items-center justify-between gap-3"
         style={{ borderBottom: `1px solid ${pillarColor}25` }}
       >
-        <div className="flex items-center gap-2">
-          <span className="text-[20px]">{meta?.emoji}</span>
-          <div>
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-[20px] shrink-0">{meta?.emoji}</span>
+          <div className="min-w-0">
             <span
-              className="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[2px] block"
+              className="font-display text-[11px] sm:text-[13px] font-bold uppercase tracking-[1.5px] block truncate"
               style={{ color: pillarColor }}
             >
               {meta?.label || pillar.pillar}
@@ -139,14 +180,14 @@ function PillarCard({
             </span>
           </div>
         </div>
-        <div className="text-right">
+        <div className="text-right shrink-0">
           <span
-            className="font-display text-[28px] sm:text-[32px] font-bold tabular-nums leading-none"
+            className="font-display text-[28px] sm:text-[32px] font-bold tabular-nums leading-none block"
             style={{ color: pillarColor }}
           >
             {pillar.score}
           </span>
-          <span className="text-[12px] text-neutral-600 font-mono">/100</span>
+          <span className="text-[11px] text-neutral-600 font-mono">/100</span>
         </div>
       </div>
 
@@ -155,12 +196,24 @@ function PillarCard({
         {pillar.categories.map((cat) => {
           const catColor = getScoreColor(cat.score);
           const catMeta = CATEGORY_META[cat.category];
+          const hasChecks = cat.checks && cat.checks.length > 0;
+          const isExpanded = expandedCat === cat.category;
+
           return (
             <div key={cat.category}>
-              <div className="flex items-center justify-between mb-1">
+              <button
+                className="w-full flex items-center justify-between mb-1 text-left"
+                onClick={() => hasChecks && setExpandedCat(isExpanded ? null : cat.category)}
+                aria-expanded={hasChecks ? isExpanded : undefined}
+              >
                 <span className="font-mono text-[11px] text-neutral-400 flex items-center gap-1.5">
                   <span className="text-[11px]">{catMeta?.icon}</span>
                   {catMeta?.label || cat.category}
+                  {hasChecks && (
+                    <span className="text-[9px] text-neutral-600 transition-transform inline-block" style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)" }}>
+                      ▼
+                    </span>
+                  )}
                 </span>
                 <span
                   className="font-mono text-[11px] font-bold tabular-nums"
@@ -168,7 +221,7 @@ function PillarCard({
                 >
                   {cat.score}
                 </span>
-              </div>
+              </button>
               <div className="h-1.5 bg-border rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-700"
@@ -178,6 +231,15 @@ function PillarCard({
                   }}
                 />
               </div>
+
+              {/* Expandable checks list */}
+              {isExpanded && hasChecks && (
+                <div className="mt-2 pl-1 space-y-0.5 border-l-2 border-border ml-2">
+                  {cat.checks!.map((check) => (
+                    <CheckItem key={check.id} check={check} />
+                  ))}
+                </div>
+              )}
             </div>
           );
         })}
