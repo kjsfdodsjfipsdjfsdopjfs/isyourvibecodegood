@@ -121,24 +121,24 @@ function PillarCard({
       style={{ animation: `slide-up 0.5s ease-out ${animDelay}s both` }}
     >
       {/* Pillar header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-[20px]">{meta?.emoji}</span>
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-[18px]">{meta?.emoji}</span>
           <span
-            className="font-display text-[16px] sm:text-[18px] font-bold uppercase tracking-[1px]"
+            className="font-display text-[13px] sm:text-[14px] font-bold uppercase tracking-[2px]"
             style={{ color: pillarColor }}
           >
             {meta?.label || pillar.pillar}
           </span>
-          <span className="font-mono text-[11px] text-neutral-600">
+          <span className="font-mono text-[10px] text-neutral-600">
             ({meta?.weight})
           </span>
         </div>
         <span
-          className="font-display text-[28px] sm:text-[32px] font-bold tabular-nums"
+          className="font-display text-[36px] sm:text-[42px] font-bold tabular-nums leading-none block"
           style={{ color: pillarColor }}
         >
-          {pillar.score}
+          {pillar.score}<span className="text-[16px] text-neutral-600 font-normal">/100</span>
         </span>
       </div>
 
