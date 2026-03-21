@@ -259,7 +259,30 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
     );
   }
 
-  const hasPillars = scan.pillars && scan.pillars.length > 0;
+  // Derive pillars from categories if API doesn't return them
+  const PILLAR_DEFS: Record<string, { label: string; categories: string[] }> = {
+    technical: { label: "Technical Reality", categories: ["accessibility", "security", "performance", "seo", "privacy", "mobile"] },
+    product: { label: "Product Reality", categories: ["ux", "design", "human_appeal"] },
+    business: { label: "Business Reality", categories: ["business", "revenue", "growth"] },
+  };
+
+  const derivedPillars: PillarData[] = scan.pillars && scan.pillars.length > 0
+    ? scan.pillars
+    : Object.entries(PILLAR_DEFS).map(([key, def]) => {
+        const pillarCats = def.categories
+          .map((catKey) => scan.categories.find((c) => c.category === catKey))
+          .filter(Boolean) as CategoryData[];
+        const avgScore = pillarCats.length > 0
+          ? Math.round(pillarCats.reduce((sum, c) => sum + c.score, 0) / pillarCats.length)
+          : 0;
+        return {
+          pillar: key,
+          score: avgScore,
+          categories: pillarCats.map((c) => ({ category: c.category, score: c.score })),
+        };
+      }).filter((p) => p.categories.length > 0);
+
+  const hasPillars = derivedPillars.length > 0;
 
   const secScore =
     scan.categories.find((c) => c.category === "security")?.score ?? 0;
@@ -268,25 +291,32 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
   const perfScore =
     scan.categories.find((c) => c.category === "performance")?.score ?? 0;
 
+  // Derive ship readiness from score if API doesn't return it
+  const shipReadiness = scan.shipReadiness || (
+    scan.overallScore >= 90 ? "SHIP IT" :
+    scan.overallScore >= 70 ? "ALMOST READY" :
+    scan.overallScore >= 50 ? "NEEDS WORK" : "DO NOT SHIP"
+  );
+
   const roast = generateRoast(
     scan.overallScore,
     secScore,
     a11yScore,
     perfScore,
     scan.categories,
-    scan.pillars
+    derivedPillars
   );
   const scoreColor = getScoreColor(scan.overallScore);
   const grade = getLetterGrade(scan.overallScore);
 
   const shareText = encodeURIComponent(
-    `My vibe-coded app got a Reality Check\n\nScore: ${scan.overallScore}/100 — Grade: ${grade}${scan.shipReadiness ? ` — ${scan.shipReadiness}` : ""}\n\n"${roast.overall.slice(0, 100)}"\n\nGet your reality check: isyourvibecodegood.com`
+    `My vibe-coded app got a Reality Check\n\nScore: ${scan.overallScore}/100 — Grade: ${grade} — ${shipReadiness}\n\n"${roast.overall.slice(0, 100)}"\n\nGet your reality check: isyourvibecodegood.com`
   );
   const shareUrl = encodeURIComponent(
     `https://isyourvibecodegood.com/roast/${id}`
   );
 
-  // Fallback: old-style category cards when no pillars
+  // Fallback: old-style category cards when no pillars (pre-expansion scans)
   const legacyCategories = [
     {
       name: "SECURITY",
@@ -388,7 +418,7 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
           aria-label="Score breakdown by pillar"
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {scan.pillars!.map((pillar, i) => (
+            {derivedPillars.map((pillar, i) => (
               <PillarCard
                 key={pillar.pillar}
                 pillar={pillar}
