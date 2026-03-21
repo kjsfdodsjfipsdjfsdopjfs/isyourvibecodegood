@@ -11,12 +11,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });
     }
 
-    const res = await fetch(`${API_BASE}/api/admin/scan`, {
+    // Try admin endpoint first (faster, no rate limit), fall back to public
+    const endpoint = ADMIN_TOKEN
+      ? `${API_BASE}/api/admin/scan`
+      : `${API_BASE}/api/scan/public`;
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (ADMIN_TOKEN) {
+      headers["X-Admin-Token"] = ADMIN_TOKEN;
+    }
+
+    const res = await fetch(endpoint, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Admin-Token": ADMIN_TOKEN,
-      },
+      headers,
       body: JSON.stringify({ url, source: "isyourvibecodegood" }),
     });
 
