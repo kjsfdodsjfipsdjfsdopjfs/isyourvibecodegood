@@ -117,56 +117,64 @@ function PillarCard({
 
   return (
     <div
-      className="bg-surface border border-border rounded-2xl p-5 sm:p-6"
+      className="bg-surface border border-border rounded-2xl overflow-hidden flex flex-col"
       style={{ animation: `slide-up 0.5s ease-out ${animDelay}s both` }}
     >
-      {/* Pillar header */}
-      <div className="mb-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-[18px]">{meta?.emoji}</span>
+      {/* Pillar header — colored top bar */}
+      <div
+        className="px-5 py-4 flex items-center justify-between"
+        style={{ borderBottom: `1px solid ${pillarColor}25` }}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-[20px]">{meta?.emoji}</span>
+          <div>
+            <span
+              className="font-display text-[12px] sm:text-[13px] font-bold uppercase tracking-[2px] block"
+              style={{ color: pillarColor }}
+            >
+              {meta?.label || pillar.pillar}
+            </span>
+            <span className="font-mono text-[10px] text-neutral-600 block">
+              {meta?.weight} weight
+            </span>
+          </div>
+        </div>
+        <div className="text-right">
           <span
-            className="font-display text-[13px] sm:text-[14px] font-bold uppercase tracking-[2px]"
+            className="font-display text-[28px] sm:text-[32px] font-bold tabular-nums leading-none"
             style={{ color: pillarColor }}
           >
-            {meta?.label || pillar.pillar}
+            {pillar.score}
           </span>
-          <span className="font-mono text-[10px] text-neutral-600">
-            ({meta?.weight})
-          </span>
+          <span className="text-[12px] text-neutral-600 font-mono">/100</span>
         </div>
-        <span
-          className="font-display text-[36px] sm:text-[42px] font-bold tabular-nums leading-none block"
-          style={{ color: pillarColor }}
-        >
-          {pillar.score}<span className="text-[16px] text-neutral-600 font-normal">/100</span>
-        </span>
       </div>
 
       {/* Category sub-bars */}
-      <div className="space-y-2.5 mb-4">
+      <div className="px-5 py-4 space-y-3 flex-1">
         {pillar.categories.map((cat) => {
           const catColor = getScoreColor(cat.score);
           const catMeta = CATEGORY_META[cat.category];
           return (
             <div key={cat.category}>
               <div className="flex items-center justify-between mb-1">
-                <span className="font-mono text-[12px] text-neutral-400 flex items-center gap-1.5">
+                <span className="font-mono text-[11px] text-neutral-400 flex items-center gap-1.5">
                   <span className="text-[11px]">{catMeta?.icon}</span>
                   {catMeta?.label || cat.category}
                 </span>
                 <span
-                  className="font-mono text-[12px] font-bold tabular-nums"
+                  className="font-mono text-[11px] font-bold tabular-nums"
                   style={{ color: catColor }}
                 >
                   {cat.score}
                 </span>
               </div>
-              <div className="h-1 bg-border rounded-full overflow-hidden">
+              <div className="h-1.5 bg-border rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-700"
                   style={{
                     width: `${cat.score}%`,
-                    background: catColor,
+                    background: `linear-gradient(90deg, ${catColor}CC, ${catColor})`,
                   }}
                 />
               </div>
@@ -177,10 +185,29 @@ function PillarCard({
 
       {/* Pillar roast */}
       {roastText && (
-        <p className="font-mono text-[12px] sm:text-[13px] text-roast leading-relaxed border-t border-border pt-3">
-          &ldquo;{roastText}&rdquo;
-        </p>
+        <div className="px-5 py-3 border-t border-border bg-[#0D0D0D]">
+          <p className="font-mono text-[11px] sm:text-[12px] text-roast leading-relaxed italic">
+            &ldquo;{roastText}&rdquo;
+          </p>
+        </div>
       )}
+    </div>
+  );
+}
+
+function InsightCard({ icon, title, value, description, color }: {
+  icon: string;
+  title: string;
+  value: string;
+  description: string;
+  color: string;
+}) {
+  return (
+    <div className="bg-surface border border-border rounded-xl p-4 text-center">
+      <span className="text-[20px] block mb-1">{icon}</span>
+      <span className="font-mono text-[10px] text-neutral-500 uppercase tracking-[1px] block mb-1">{title}</span>
+      <span className="font-display text-[18px] font-bold block mb-1" style={{ color }}>{value}</span>
+      <span className="font-mono text-[10px] text-neutral-500 block">{description}</span>
     </div>
   );
 }
@@ -363,9 +390,9 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
       </p>
 
       {/* Ship Readiness Verdict */}
-      {scan.shipReadiness && showRoast && (
+      {showRoast && (
         <div className="relative z-[1] mb-6">
-          <ShipReadinessBadge verdict={scan.shipReadiness} />
+          <ShipReadinessBadge verdict={shipReadiness} />
         </div>
       )}
 
@@ -410,10 +437,52 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
         </div>
       )}
 
-      {/* === NEW: 3-Pillar Display (when pillars available) === */}
+      {/* Quick insights row */}
       {showRoast && hasPillars && (
         <div
-          className="max-w-[720px] w-full mx-auto mb-10 relative z-[1]"
+          className="max-w-[720px] w-full mx-auto mb-8 relative z-[1]"
+          style={{ animation: "slide-up 0.4s ease-out 0.1s both" }}
+        >
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <InsightCard
+              icon="🛡️"
+              title="Security"
+              value={`${scan.categories.find(c => c.category === "security")?.score ?? "—"}`}
+              description={secScore >= 70 ? "Protected" : "Vulnerable"}
+              color={getScoreColor(secScore)}
+            />
+            <InsightCard
+              icon="⚡"
+              title="Speed"
+              value={`${scan.categories.find(c => c.category === "performance")?.score ?? "—"}`}
+              description={perfScore >= 70 ? "Fast" : "Slow"}
+              color={getScoreColor(perfScore)}
+            />
+            <InsightCard
+              icon="♿"
+              title="A11y"
+              value={`${scan.categories.find(c => c.category === "accessibility")?.score ?? "—"}`}
+              description={a11yScore >= 70 ? "Accessible" : "Excluding users"}
+              color={getScoreColor(a11yScore)}
+            />
+            <InsightCard
+              icon="📈"
+              title="Growth"
+              value={`${scan.categories.find(c => c.category === "growth")?.score ?? "—"}`}
+              description={
+                (scan.categories.find(c => c.category === "growth")?.score ?? 0) >= 70
+                  ? "Growth-ready" : "No growth engine"
+              }
+              color={getScoreColor(scan.categories.find(c => c.category === "growth")?.score ?? 0)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* === 3-Pillar Display (when pillars available) === */}
+      {showRoast && hasPillars && (
+        <div
+          className="max-w-[900px] w-full mx-auto mb-10 relative z-[1]"
           role="list"
           aria-label="Score breakdown by pillar"
         >
