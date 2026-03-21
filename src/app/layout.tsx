@@ -3,13 +3,13 @@ import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Is Your Vibe Code Good?",
+  title: "Reality Check — Is Your Vibe Code Good?",
   description:
-    "Paste your URL. Get roasted. We scan AI-generated apps for security, accessibility, and performance — then tell you the truth. Brutally.",
+    "Paste your URL. Get a reality check. We scan AI-generated apps for security, accessibility, and performance — then tell you the truth. Brutally.",
   metadataBase: new URL("https://isyourvibecodegood.com"),
   openGraph: {
-    title: "Is Your Vibe Code Good?",
-    description: "Paste your URL. Get roasted. Brutally.",
+    title: "Reality Check — Is Your Vibe Code Good?",
+    description: "Paste your URL. Get a reality check. Brutally.",
     type: "website",
     siteName: "isyourvibecodegood.com",
     images: [
@@ -17,14 +17,14 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Is Your Vibe Code Good? — Get your AI-generated app roasted",
+        alt: "Reality Check — Is Your Vibe Code Good?",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Is Your Vibe Code Good?",
-    description: "Paste your URL. Get roasted. Brutally.",
+    title: "Reality Check — Is Your Vibe Code Good?",
+    description: "Paste your URL. Get a reality check. Brutally.",
     images: ["/twitter-image"],
   },
 };

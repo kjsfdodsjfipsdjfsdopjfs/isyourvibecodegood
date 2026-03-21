@@ -59,14 +59,14 @@ const ASCII_FIRE = `         (  .      )
 (_,,,._,,,._,,,._,,,._,,,._,,,._,,,._,,)`;
 
 const LOADING_MESSAGES = [
-  "Analyzing your crimes against web development...",
-  "Counting the security holes...",
-  "Wondering who let you ship this...",
-  "Checking if screen readers are crying...",
-  "Measuring how slow this thing really is...",
-  "Preparing your roast...",
-  "Finding the kindest way to destroy you...",
-  "Looking for something nice to say... nope...",
+  "Running reality check on your crimes against code...",
+  "Checking if your app survives contact with reality...",
+  "Analyzing what your AI forgot to build...",
+  "Measuring the gap between demo and production...",
+  "Your reality check is loading... brace yourself...",
+  "Separating vibes from reality...",
+  "Checking if real users would actually use this...",
+  "Finding the stuff AI skipped...",
 ];
 
 export default function Home() {
@@ -254,6 +254,9 @@ export default function Home() {
         className="text-center relative z-[1] mb-12"
         style={{ animation: "crt-flicker 4s linear infinite" }}
       >
+        <span className="block font-mono text-[11px] sm:text-[13px] font-semibold tracking-[6px] uppercase mb-3" style={{ color: "#F97316" }}>
+          Reality Check
+        </span>
         <span className="block font-display text-[20px] sm:text-[28px] font-normal tracking-[6px] uppercase opacity-50">
           is your
         </span>
@@ -308,7 +311,7 @@ export default function Home() {
             style={{ animation: "border-burn 3s ease-in-out infinite" }}
           >
             <span className="font-mono text-[16px] text-ember-orange pl-5 pr-0 py-4 select-none whitespace-nowrap">
-              $ scan
+              $ reality-check
             </span>
             <label htmlFor="url-input-desktop" className="sr-only">Website URL to scan</label>
             <input
@@ -327,7 +330,7 @@ export default function Home() {
                 boxShadow: "0 0 30px rgba(249,115,22,0.3)",
               }}
             >
-              ROAST ME
+              REALITY CHECK
             </button>
           </div>
           {/* Mobile: stacked layout */}
@@ -354,7 +357,7 @@ export default function Home() {
                 boxShadow: "0 0 30px rgba(249,115,22,0.3)",
               }}
             >
-              ROAST ME
+              REALITY CHECK
             </button>
           </div>
         </form>
@@ -370,7 +373,7 @@ export default function Home() {
       {!loading && (
         <div className="relative z-[1] mt-12 text-center">
           <p className="font-mono text-[11px] uppercase tracking-[3px] text-neutral-600 mb-4">
-            Recently Roasted
+            Reality Checked
           </p>
           <div className="flex flex-col gap-1.5 items-center">
             {killFeed.map((item, i) => (
@@ -419,7 +422,7 @@ export default function Home() {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                Top Vibe Codes
+                Top Reality Scores
               </span>{" "}
               <span style={{ color: "#FBBF24" }}>&#9733;</span>
             </p>

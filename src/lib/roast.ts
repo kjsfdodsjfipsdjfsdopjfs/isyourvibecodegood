@@ -551,9 +551,9 @@ export const CATEGORY_META: Record<string, { label: string; icon: string }> = {
 };
 
 export const PILLAR_META: Record<string, { label: string; emoji: string; weight: string }> = {
-  technical: { label: "Technical", emoji: "📊", weight: "40%" },
-  product: { label: "Product", emoji: "🎨", weight: "35%" },
-  business: { label: "Business", emoji: "💰", weight: "25%" },
+  technical: { label: "Technical Reality", emoji: "📊", weight: "40%" },
+  product: { label: "Product Reality", emoji: "🎨", weight: "35%" },
+  business: { label: "Business Reality", emoji: "💰", weight: "25%" },
 };
 
 export interface PillarData {

@@ -229,7 +229,7 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
             }}
           />
           <p className="font-mono text-[14px] text-roast animate-pulse">
-            Loading your roast...
+            Loading your reality check...
           </p>
           <style jsx>{`
             @keyframes spin {
@@ -246,13 +246,13 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
       <main className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="font-display text-2xl text-score-bad mb-4">
-            {error || "Roast not found"}
+            {error || "Reality check not found"}
           </p>
           <a
             href="/"
             className="font-mono text-sm text-ember-orange border-b border-ember-orange/30 hover:border-ember-orange"
           >
-            Roast another app
+            Reality check another app
           </a>
         </div>
       </main>
@@ -280,7 +280,7 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
   const grade = getLetterGrade(scan.overallScore);
 
   const shareText = encodeURIComponent(
-    `My vibe-coded app got ROASTED\n\nScore: ${scan.overallScore}/100 — Grade: ${grade}${scan.shipReadiness ? ` — ${scan.shipReadiness}` : ""}\n\n"${roast.overall.slice(0, 100)}"\n\nGet roasted: isyourvibecodegood.com`
+    `My vibe-coded app got a Reality Check\n\nScore: ${scan.overallScore}/100 — Grade: ${grade}${scan.shipReadiness ? ` — ${scan.shipReadiness}` : ""}\n\n"${roast.overall.slice(0, 100)}"\n\nGet your reality check: isyourvibecodegood.com`
   );
   const shareUrl = encodeURIComponent(
     `https://isyourvibecodegood.com/roast/${id}`
@@ -321,6 +321,11 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
           background: `radial-gradient(circle, ${scoreColor}15, transparent 70%)`,
         }}
       />
+
+      {/* Reality Check badge */}
+      <span className="relative z-[1] font-mono text-[11px] sm:text-[13px] font-semibold tracking-[6px] uppercase mb-4" style={{ color: "#F97316" }}>
+        Reality Check
+      </span>
 
       {/* URL */}
       <p className="font-mono text-[14px] text-neutral-600 mb-6 relative z-[1]">
@@ -489,7 +494,7 @@ export default function RoastPage({ params }: { params: Promise<{ id: string }> 
         href="/"
         className="relative z-[1] font-mono text-[13px] text-neutral-600 hover:text-white transition-colors"
       >
-        Roast another app &rarr;
+        Reality check another app &rarr;
       </a>
 
       {/* Footer */}
